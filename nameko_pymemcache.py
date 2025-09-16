@@ -13,7 +13,7 @@ class NamekoHashClient(HashClient):
     """Enhanced pymemcache HashClient optimized for Nameko services.
     
     Provides reliable multi-node memcached support with proper connection
-    management and Django-compatible behavior for easy integration.
+    management and consistent behavior for production use.
     """
 
     def disconnect_all(self):
@@ -81,10 +81,10 @@ class Memcached(DependencyProvider):
         return host_and_port_list
 
     def _get_client(self):
-        # Parse servers to (host, port) tuples like Django does
+        # Parse servers to (host, port) tuples
         servers = self._split_host_and_port(self.uris)
 
-        # Set up default options (minimal like Django)
+        # Set up default options (minimal configuration)
         client_options = {
             'serializer': python_memcache_serializer,
             'deserializer': python_memcache_deserializer,

@@ -7,9 +7,9 @@ Memcached dependency for nameko services with consistent hashing support for mul
 **Key Features:**
 - **Consistent hashing** for reliable multi-node memcached clusters  
 - **Optimized for Nameko** - proper connection management and worker cleanup
-- **Django compatible** - same interface as django-pymemcache for easy integration
 - **Automatic failover** when nodes become unavailable
 - **Drop-in replacement** for bmemcached with better multi-node behavior
+- **High performance** - uses pymemcache's efficient C implementation
 
 Inspiration and structure **proudly** stolen from nameko-redis :) Thanks guys!
 
@@ -50,13 +50,21 @@ MEMCACHED_PASSWORD: 'ready'
 
 ## Multi-Node Configuration
 
-For multi-node memcached clusters, simply specify multiple servers:
+For multi-node memcached clusters, specify multiple servers using either format:
+
+**YAML list format:**
 ```yaml
 AMQP_URI: 'amqp://guest:guest@localhost'
 MEMCACHED_URIS: 
   - '192.168.1.10:11211'
   - '192.168.1.11:11211'
   - '192.168.1.12:11211'
+```
+
+**Bracketed list format:**
+```yaml
+AMQP_URI: 'amqp://guest:guest@localhost'
+MEMCACHED_URIS: ['192.168.1.10:11211', '192.168.1.11:11211', '192.168.1.12:11211']
 ```
 
 The client automatically uses **consistent hashing** to distribute keys across nodes. When a node fails, only the keys on that node are affected (not all keys like with simple round-robin).
@@ -78,24 +86,23 @@ class MyService(object):
     ...
 ```
 
-## Framework Compatibility
+## Available Operations
 
-This package provides a consistent interface that works seamlessly with Django's pymemcache backend, making it easy to share cache configurations between Django and Nameko services:
+All standard memcached operations are supported:
 
 ```python
-# Same server configuration works in both Django and Nameko
-CACHE_SERVERS = ['192.168.1.10:11211', '192.168.1.11:11211', '192.168.1.12:11211']
+# Basic operations
+self.memcached.set(key, value, expire=300)
+result = self.memcached.get(key)
+self.memcached.delete(key)
 
-# Django settings.py
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-        'LOCATION': CACHE_SERVERS,
-    }
-}
+# Batch operations
+self.memcached.set_many({'key1': 'val1', 'key2': 'val2'})
+results = self.memcached.get_many(['key1', 'key2'])
 
-# Nameko config.yaml  
-MEMCACHED_URIS: ['192.168.1.10:11211', '192.168.1.11:11211', '192.168.1.12:11211']
+# Increment/decrement operations
+self.memcached.incr(key, delta=1)
+self.memcached.decr(key, delta=1)
 ```
 
 ## Performance Tips
