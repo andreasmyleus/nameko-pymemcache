@@ -13,6 +13,12 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
+    services:
+      memcached:
+        image: memcached:1.6-alpine
+        ports:
+          - 11211:11211
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -39,4 +45,6 @@ jobs:
         
     - name: Test with pytest
       run: |
-        pytest test/
+        # Wait for memcached to be ready
+        sleep 2
+        pytest test/ -v
