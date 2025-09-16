@@ -8,6 +8,30 @@ from pymemcache.serde import (
     python_memcache_deserializer
 )
 
+
+class NamekoHashClient(HashClient):
+    """Enhanced pymemcache HashClient optimized for Nameko services.
+    
+    Provides reliable multi-node memcached support with proper connection
+    management and Django-compatible behavior for easy integration.
+    """
+
+    def disconnect_all(self):
+        """Disconnect all client connections for proper cleanup."""
+        for client in self.clients.values():
+            client.close()
+
+    def get_many(self, keys, gets=False, *args, **kwargs):
+        """Get multiple keys with consistent behavior.
+        
+        Filters out False values that pymemcache's HashClient may return,
+        ensuring consistent None behavior for missing keys.
+        """
+        result = super().get_many(keys, gets, *args, **kwargs)
+        return {key: result.get(key) for key in result if result.get(key)}
+
+    get_multi = get_many  # Alias for backward compatibility
+
 # Version is handled automatically by setuptools_scm
 try:
     from importlib.metadata import version
@@ -39,31 +63,31 @@ class Memcached(DependencyProvider):
     def worker_teardown(self, worker_ctx):
         client = self.clients.pop(worker_ctx, None)
         if client:
-            client.quit()
+            client.disconnect_all()
+
+    def _split_host_and_port(self, servers):
+        """Convert python-memcached based server strings to pymemcache format.
+        
+        - Input: ['127.0.0.1:11211', ...] or ['127.0.0.1', ...]
+        - Output: [('127.0.0.1', 11211), ...]
+        """
+        host_and_port_list = []
+        for server in servers:
+            connection_info = server.split(':')
+            if len(connection_info) == 1:
+                host_and_port_list.append((connection_info[0], 11211))
+            elif len(connection_info) == 2:
+                host_and_port_list.append((connection_info[0], int(connection_info[1])))
+        return host_and_port_list
 
     def _get_client(self):
-        # Parse servers to (host, port) tuples
-        servers = []
-        for uri in self.uris:
-            if ':' in uri:
-                host, port = uri.rsplit(':', 1)
-                port = int(port)
-            else:
-                host = uri
-                port = 11211
-            servers.append((host, port))
+        # Parse servers to (host, port) tuples like Django does
+        servers = self._split_host_and_port(self.uris)
 
-        # Set up default options for consistent hashing and reliability
+        # Set up default options (minimal like Django)
         client_options = {
             'serializer': python_memcache_serializer,
             'deserializer': python_memcache_deserializer,
-            'connect_timeout': 0.05,  # fail fast on connection
-            'timeout': 0.05,          # fail fast on operations
-            'no_delay': True,         # TCP_NODELAY for low latency
-            'ignore_exc': True,       # never crash app on cache errors
-            'retry_attempts': 1,      # minimal retry
-            'dead_timeout': 5,        # temporarily evict sick nodes
-            'use_pooling': True,      # connection pooling
         }
 
         # Merge in user-provided options (they can override defaults)
@@ -76,4 +100,8 @@ class Memcached(DependencyProvider):
             # or connection string
             pass  # For now, auth is handled differently in pymemcache
 
-        return HashClient(servers, **client_options)
+        return NamekoHashClient(servers, **client_options)
+
+
+# Export the client class for direct use
+__all__ = ['Memcached', 'NamekoHashClient']
