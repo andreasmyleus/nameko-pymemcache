@@ -1,6 +1,7 @@
 # nameko-pymemcache
 [![PyPI version](https://badge.fury.io/py/nameko-pymemcache.svg)](https://badge.fury.io/py/nameko-pymemcache)
-[![Build Status](https://travis-ci.org/andreasmyleus/nameko-pymemcache.svg?branch=master)](https://travis-ci.org/andreasmyleus/nameko-pymemcache)
+[![Tests](https://github.com/andreasmyleus/nameko-pymemcache/actions/workflows/test.yml/badge.svg)](https://github.com/andreasmyleus/nameko-pymemcache/actions/workflows/test.yml)
+[![Python](https://img.shields.io/pypi/pyversions/nameko-pymemcache.svg)](https://pypi.org/project/nameko-pymemcache/)
 
 Memcached dependency for nameko services with consistent hashing support for multi-node setups. Uses the high-performance pymemcache library with automatic failover and connection pooling.
 
