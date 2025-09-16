@@ -54,19 +54,22 @@ def test_end_to_end(memcached):
     container = ServiceContainer(ExampleService, config)
     container.start()
 
-    # write through the service
-    with entrypoint_hook(container, "write") as write:
-        write("foobar")
+    try:
+        # write through the service
+        with entrypoint_hook(container, "write") as write:
+            write("foobar")
 
-    # verify changes written to memcached
-    client = Client(
-        ('127.0.0.1', 11211),
-        serializer=python_memcache_serializer,
-        deserializer=python_memcache_deserializer
-    )
-    assert client.get(TEST_KEY) == "foobar"
-    client.quit()
+        # verify changes written to memcached
+        client = Client(
+            ('127.0.0.1', 11211),
+            serializer=python_memcache_serializer,
+            deserializer=python_memcache_deserializer
+        )
+        assert client.get(TEST_KEY) == "foobar"
+        client.quit()
 
-    # read through the service
-    with entrypoint_hook(container, "read") as read:
-        assert read() == "foobar"
+        # read through the service
+        with entrypoint_hook(container, "read") as read:
+            assert read() == "foobar"
+    finally:
+        container.stop()
