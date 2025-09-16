@@ -1,16 +1,16 @@
 from setuptools import setup
 
 setup(
-    name='nameko-memcached',
+    name='nameko-pymemcache',
     version='0.1.0',
-    url='https://github.com/frisellcpl/nameko-memcached/',
+    url='https://github.com/andreasmyleus/nameko-pymemcache/',
     license='Apache License, Version 2.0',
-    author='frisellcpl',
-    author_email='johan@trell.se',
-    py_modules=['nameko_memcached'],
+    author='andreasmyleus',
+    author_email='andreas@pdc.ax',
+    py_modules=['nameko_pymemcache'],
     install_requires=[
         "nameko>=2.0.0",
-        "python-binary-memcached",
+        "pymemcache>=4.0.0",
     ],
     description='Memcached dependency for nameko services',
     classifiers=[

@@ -1,2 +1,5 @@
 Johan Frisell <johan@trell.se>
 github: frisellcpl
+
+Andreas Myleus <andreas@pdc.ax>
+github: andreasmyleus
