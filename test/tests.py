@@ -1,14 +1,18 @@
 import eventlet
 eventlet.monkey_patch()  # noqa (code before rest of imports)
 
-from nameko.containers import ServiceContainer
-from nameko.testing.services import entrypoint_hook, dummy
+from nameko.containers import ServiceContainer  # noqa
+from nameko.testing.services import entrypoint_hook, dummy  # noqa
 
-import pytest
+import pytest  # noqa
 
-import bmemcached
+from pymemcache.client.base import Client  # noqa
+from pymemcache.serde import (  # noqa
+    python_memcache_serializer,
+    python_memcache_deserializer
+)
 
-from nameko_memcached import Memcached
+from nameko_pymemcache import Memcached  # noqa
 
 
 TEST_KEY = 'nameko-test-value'
@@ -33,8 +37,13 @@ def memcached():
 
     yield uri
 
-    client = bmemcached.Client((uri, ))
+    client = Client(
+        ('127.0.0.1', 11211),
+        serializer=python_memcache_serializer,
+        deserializer=python_memcache_deserializer
+    )
     client.delete(TEST_KEY)
+    client.quit()
 
 
 def test_end_to_end(memcached):
@@ -50,8 +59,13 @@ def test_end_to_end(memcached):
         write("foobar")
 
     # verify changes written to memcached
-    client = bmemcached.Client((memcached, ))
+    client = Client(
+        ('127.0.0.1', 11211),
+        serializer=python_memcache_serializer,
+        deserializer=python_memcache_deserializer
+    )
     assert client.get(TEST_KEY) == "foobar"
+    client.quit()
 
     # read through the service
     with entrypoint_hook(container, "read") as read:
