@@ -1,8 +1,12 @@
 from setuptools import setup
 
+# Read the README for long description
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name='nameko-pymemcache',
-    version='0.1.0',
+    version='1.0.0',  # Major version since this is a breaking change from bmemcached
     url='https://github.com/andreasmyleus/nameko-pymemcache/',
     license='Apache License, Version 2.0',
     author='andreasmyleus',
@@ -12,17 +16,22 @@ setup(
         "nameko>=2.0.0",
         "pymemcache>=4.0.0",
     ],
-    description='Memcached dependency for nameko services',
+    description='Memcached dependency for nameko services with consistent hashing',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
-
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Intended Audience :: Developers',
+        'Topic :: System :: Distributed Computing',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
+    python_requires='>=3.7',
+    keywords='nameko memcached cache distributed consistent-hashing',
 )
