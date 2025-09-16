@@ -5,11 +5,11 @@
 Memcached dependency for nameko services with consistent hashing support for multi-node setups. Uses the high-performance pymemcache library with automatic failover and connection pooling.
 
 **Key Features:**
-- **Consistent hashing** for reliable multi-node memcached clusters
+- **Consistent hashing** for reliable multi-node memcached clusters  
+- **Optimized for Nameko** - proper connection management and worker cleanup
+- **Django compatible** - same interface as django-pymemcache for easy integration
 - **Automatic failover** when nodes become unavailable
-- **Fast timeouts** to prevent application blocking on cache failures
-- **Connection pooling** for optimal performance
-- **Django-style sharding** compatible with existing Django cache configurations
+- **Drop-in replacement** for bmemcached with better multi-node behavior
 
 Inspiration and structure **proudly** stolen from nameko-redis :) Thanks guys!
 
@@ -78,9 +78,29 @@ class MyService(object):
     ...
 ```
 
+## Framework Compatibility
+
+This package provides a consistent interface that works seamlessly with Django's pymemcache backend, making it easy to share cache configurations between Django and Nameko services:
+
+```python
+# Same server configuration works in both Django and Nameko
+CACHE_SERVERS = ['192.168.1.10:11211', '192.168.1.11:11211', '192.168.1.12:11211']
+
+# Django settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': CACHE_SERVERS,
+    }
+}
+
+# Nameko config.yaml  
+MEMCACHED_URIS: ['192.168.1.10:11211', '192.168.1.11:11211', '192.168.1.12:11211']
+```
+
 ## Performance Tips
 
 - **Identical server order**: Keep the same server order across all clients for consistent key distribution
-- **Fast timeouts**: The default 50ms timeouts prevent cache issues from blocking your application
-- **Connection pooling**: Enabled by default for better performance under load
-- **Failure handling**: Failed nodes are automatically removed from the ring and retried later
+- **Connection pooling**: Available via pymemcache options if needed
+- **Custom timeouts**: Override defaults by passing pymemcache options to the constructor
+- **Failure handling**: Failed nodes are automatically removed from the hash ring and retried later
