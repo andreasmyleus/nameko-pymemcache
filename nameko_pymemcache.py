@@ -8,6 +8,12 @@ from pymemcache.serde import (
     python_memcache_deserializer
 )
 
+try:
+    from ._version import version as __version__
+except ImportError:
+    # Development mode - no version file yet
+    __version__ = "0.0.0.dev0"
+
 
 class Memcached(DependencyProvider):
     def __init__(self, **options):

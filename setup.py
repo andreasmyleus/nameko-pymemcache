@@ -6,12 +6,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='nameko-pymemcache',
-    version='1.0.0',  # Major version since this is a breaking change from bmemcached
+    use_scm_version=True,  # Automatically get version from Git tags
     url='https://github.com/andreasmyleus/nameko-pymemcache/',
     license='Apache License, Version 2.0',
     author='andreasmyleus',
     author_email='andreas@pdc.ax',
     py_modules=['nameko_pymemcache'],
+    setup_requires=['setuptools_scm'],
     install_requires=[
         "nameko>=2.0.0",
         "pymemcache>=4.0.0",
