@@ -8,11 +8,17 @@ from pymemcache.serde import (
     python_memcache_deserializer
 )
 
+# Version is handled automatically by setuptools_scm
 try:
-    from ._version import version as __version__
+    from importlib.metadata import version
+    __version__ = version("nameko-pymemcache")
 except ImportError:
-    # Development mode - no version file yet
-    __version__ = "0.0.0.dev0"
+    # Fallback for older Python versions or development mode
+    try:
+        import pkg_resources
+        __version__ = pkg_resources.get_distribution("nameko-pymemcache").version
+    except Exception:
+        __version__ = "0.0.0.dev0"
 
 
 class Memcached(DependencyProvider):
