@@ -3,10 +3,7 @@ from weakref import WeakKeyDictionary
 from nameko.extensions import DependencyProvider
 
 from pymemcache.client.hash import HashClient
-from pymemcache.serde import (
-    python_memcache_serializer,
-    python_memcache_deserializer
-)
+from pymemcache.serde import CompressedSerde
 
 
 class NamekoHashClient(HashClient):
@@ -84,10 +81,11 @@ class Memcached(DependencyProvider):
         # Parse servers to (host, port) tuples
         servers = self._split_host_and_port(self.uris)
 
-        # Set up default options (minimal configuration)
+        # Set up bmemcached-compatible compression (128-byte threshold like bmemcached)
+        bmemcached_compatible_serde = CompressedSerde(min_compress_len=128)
+        
         client_options = {
-            'serializer': python_memcache_serializer,
-            'deserializer': python_memcache_deserializer,
+            'serde': bmemcached_compatible_serde,
         }
 
         # Merge in user-provided options (they can override defaults)
