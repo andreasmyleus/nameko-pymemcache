@@ -1,5 +1,8 @@
 name: Publish to PyPI
 
+permissions:
+  contents: read
+
 on:
   release:
     types: [published]
@@ -10,10 +13,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4.9.1
       with:
         python-version: '3.11'
         
@@ -29,7 +32,7 @@ jobs:
       run: twine check dist/*
       
     - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1 (v1.14.3)
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
         verbose: true
